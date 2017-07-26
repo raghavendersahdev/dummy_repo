@@ -62,7 +62,7 @@ float dist1_p[MAX_DESC], dist2_p[MAX_DESC];
 string evaluation_info;
 
 string detector_names[] = {"KLT Detector", "Harris Corner Detector",
-        //"BCD (Binary Corner Detector)",
+                           //"BCD (Binary Corner Detector)",
                            "SIFT",
                            "SURF", "FAST Detector",
                            "FASTER9 Detector", "FASTER10 Detector",
@@ -158,7 +158,7 @@ void MainWindow::on_button_generate_clicked()
             //circle(cvImg2, Point(featsImage2.getFeatureX(min_dist_idx), featsImage2.getFeatureY(min_dist_idx)), 5, Scalar(255,255,0), 3, 8, 0);
 
             for(int i=0 ; i< distances.size() ; i++)
-                ;// cout << distances.row(i).x() << " Distances" << endl;
+               ;// cout << distances.row(i).x() << " Distances" << endl;
 
 
 
@@ -651,17 +651,13 @@ void MainWindow::on_detector_choose(int choice)
         param5_edit->setText("true");
     }
         // BCD Features not implemented yet in MRPT library
-        /*else if(choice == 2)
-        {
-            makeAllDetectorParamsVisible(false);
-        }*/
+    /*else if(choice == 2)
+    {
+        makeAllDetectorParamsVisible(false);
+    }*/
         //for SIFT Features
     else if (choice == 2)
     {
-#if  !MRPT_HAS_SIFT_HESS
-        QMessageBox::information(this, "SIFT error","MRPT has been compiled without SIFT Hess support");
-        return;
-#endif
         param1->setText("Threshold: ");
         param2->setText("Edge Threshold: ");
         param1_edit->setText("0.04");
@@ -956,14 +952,13 @@ void MainWindow::fillDetectorInfo()
 
         cout << "detecting Harris Features " << endl ;
     }
-        /*else if(detector_selected == 2) // not implemented in MRPT yet
-        {
-            fext.options.featsType = featBCD;
-            cout <<"detecting BCD Features" << endl;
-        }*/
+    /*else if(detector_selected == 2) // not implemented in MRPT yet
+    {
+        fext.options.featsType = featBCD;
+        cout <<"detecting BCD Features" << endl;
+    }*/
     else if(detector_selected == 2) // SIFT Detector
     {
-
         SIFT_opts.threshold         = param1_edit->text().toFloat();
         SIFT_opts.edge_threshold    = param2_edit->text().toFloat();
 
@@ -1213,13 +1208,6 @@ void MainWindow::fillDescriptorInfo()
 void MainWindow::on_detector_button_clicked()
 {
 
-    if(detector_selected == 2)
-    {
-#if  !MRPT_HAS_SIFT_HESS
-        QMessageBox::information(this, "SIFT error","MRPT has been compiled without SIFT Hess support");
-        return;
-#endif
-    }
     evaluate_detector_clicked = true;
 
     //read inputs from user
@@ -1341,7 +1329,7 @@ void MainWindow::on_detector_button_clicked()
                 << "<br/>Resolution of the Image: " << cvImg1.rows << ", " << cvImg1.cols
                 << "<br/>Dispersion of keypoints in Image1 in X direction: " << standard_dev_x
                 << "<br/>Dispersion of keypoints in Image1 in Y direction: " << standard_dev_y
-            ;
+                ;
     if(currentInputIndex == 1 || currentInputIndex == 4)
         detect_info << "<br/>Number of Detected Key-points in Image 2: " << featsImage2.size();
     detect_info << endl;
@@ -2158,8 +2146,8 @@ void MainWindow::on_trackIt_clicked()
 {
 
     int remove_lost_feats, add_new_feats,
-            max_feats, patch_size,
-            window_width, window_height;
+    max_feats, patch_size,
+    window_width, window_height;
 
     remove_lost_feats       = tracker_param1->isChecked() ? 1 :0;
     add_new_feats           = tracker_param2->isChecked() ? 1 :0;
@@ -2513,11 +2501,6 @@ MainWindow::MainWindow(QWidget *window_gui) : QMainWindow(window_gui)
     ///initially have the visual odometry widgets hidden, only displayed when user selects input as single image dataset
     makeVisualOdomParamsVisible(false);
 
-    /// create a signal slot for displaying the progress of VO
-    //Counter a, b;
-    //QObject::connect(&a, SIGNAL(valueChanged(int)),
-      //               &b, SLOT(setValue(int)));
-
 
 
     QGridLayout *userOptionsVBox = new QGridLayout;
@@ -2868,7 +2851,7 @@ string MainWindow::findRepeatability(float mouse_x, float mouse_y)
             consecutive = 0;
         }
     }
-    double percent_repeat = (double) repeatability / (double) (files_length-1) * 100.00 ;
+    double percent_repeat = (double) repeatability / (double) files_length * 100.00 ;
     cout << "Repeatability : " << repeatability << "Number of files :: "<< files_length  << endl << "Repeatability % " << percent_repeat << endl ;
     stringstream ss ;
     ss <<  "<br/> Repeatability of selected keypoint <br/>Repeatability : " << repeatability
@@ -3264,8 +3247,8 @@ void MainWindow::Mouse_Pressed()
     //cout << szt.height() << "  " << szt.width() << " " << szt.rheight() << " " << szt.rwidth() <<endl;
 
     //cout << qrect.width() << " " << qrect.height() <<
-    //   " " << qrect.top() << " " << qrect.bottom() <<
-    // " " << qrect.left() << " " << qrect.right() << endl;
+      //   " " << qrect.top() << " " << qrect.bottom() <<
+        // " " << qrect.left() << " " << qrect.right() << endl;
 
 
 
