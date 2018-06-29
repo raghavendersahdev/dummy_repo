@@ -1,8 +1,6 @@
 STOMP Planner
 =============
 
-.. image:: stomp.png
-   :width: 700px
 
 Stochastic Trajectory Optimization for Motion Planning (STOMP) is a novel probabilistic optimization framework (Kalakrishnan et al. 2011). STOMP Produces smooth well behaved collision free paths within reasonable times. The approach relies on generating noisy trajectories to explore the space around an initial (possibly infeasible) trajectory which are then combined o produce an updated trajectory with lower cost. A cost function based on a combination of obstacle and smoothness cost is optimized in each iteration. No gradient information is required for the particular optimization algorithm that we use and so general costs for which derivatives may not be available (e.g. costs corresponding to constraints and motor torques) can be included in the cost function. Some of the strengths of STOMP include, it can incorporate additional objective functions such as torque limits, energy and tool constraints. Stomp can handle cost functions which do not need to be differentiable. It uses distance field and spherical approximations to quickly compute distance queries and collision costs. Integration into latest version of MoveIt! is work in progress. `More info <http://www.nathanratliff.com/thesis-research/chomp>`_
 
