@@ -32,28 +32,100 @@ Re-source the setup files: ::
 
 Using CHOMP with Your Robot
 ---------------------------
-**Note:** if you are following this demo using the ``panda_moveit_config`` from the `ros-planning/panda_moveit_config <https://github.com/ros-planning/panda_moveit_config>`_ repository, these steps are already done for you and you can skip this section.
+**Note:** if you are following this demo using the ``panda_moveit_config`` from the `ros-planning/panda_moveit_config <https://github.com/ros-planning/panda_moveit_config>`_ repository, these steps are already done for you and you can skip this section. You only need to do step 3.
 
-#. Simply download `chomp_planning_pipeline.launch.xml <https://github.com/ros-planning/panda_moveit_config/blob/master/launch/chomp_planning_pipeline.launch.xml>`_ file into the launch directory of your MoveIt! config package. In our case, we will save this file in the ``panda_moveit_config/launch`` directory.
-#. Adjust the line ``<rosparam command="load" file="$(find panda_moveit_config)/config/chomp_planning.yaml" />`` to ``<rosparam command="load" file="$(find <robot_moveit_config>)/config/chomp_planning.yaml" />`` replacing ``<robot_moveit_config>`` with the name of your MoveIt! configuration package.
-#. Download `chomp_planning.yaml <https://github.com/ros-planning/panda_moveit_config/blob/master/config/chomp_planning.yaml>`_ file into the config directory of your MoveIt! config package. In our case, we will save this file in the ``panda_moveit_config/config`` directory.
-#. Open ``chomp_planning.yaml`` in your favorite editor and change ``animate_endeffector_segment: "panda_rightfinger"`` to the appropriate link for your robot.
+#. Simply download `stomp_planning_pipeline.launch.xml <https://github.com/ros-planning/panda_moveit_config/blob/master/launch/stomp_planning_pipeline.launch.xml>`_ file into the launch directory of your MoveIt! config package. In our case, we will save this file in the ``panda_moveit_config/launch`` directory. Create a "*stomp_planning_pipeline.launch.xml*" file in the **launch** directory of your **moveit_config** package.  The file should contain the following: ::
+   
+   <launch>
+
+     <!-- Stomp Plugin for MoveIt! -->
+     <arg name="planning_plugin" value="stomp_moveit/StompPlannerManager" />
+
+     <!-- The request adapters (plugins) ORDER MATTERS -->
+     <arg name="planning_adapters" value="default_planner_request_adapters/FixWorkspaceBounds
+                                          default_planner_request_adapters/FixStartStateBounds
+                                          default_planner_request_adapters/FixStartStateCollision
+                                          default_planner_request_adapters/FixStartStatePathConstraints" />
+
+     <arg name="start_state_max_bounds_error" value="0.1" />
+
+     <param name="planning_plugin" value="$(arg planning_plugin)" />
+     <param name="request_adapters" value="$(arg planning_adapters)" />
+     <param name="start_state_max_bounds_error" value="$(arg start_state_max_bounds_error)" />
+     <rosparam command="load" file="$(find myworkcell_moveit_config)/config/stomp_planning.yaml"/>
+
+   </launch>
+   
+     
+   **!!!** Take notice of the **stomp_planning.yaml** configuration file, this file must exists in moveit_config package.
+
+#. Adjust the line ``<rosparam command="load" file="$(find panda_moveit_config)/config/stomp_planning.yaml" />`` to ``<rosparam command="load" file="$(find <robot_moveit_config>)/config/stomp_planning.yaml" />`` replacing ``<robot_moveit_config>`` with the name of your MoveIt! configuration package.
+#. Download `stomp_planning.yaml <https://github.com/ros-planning/panda_moveit_config/blob/master/config/stomp_planning.yaml>`_ file into the config directory of your MoveIt! config package. In our case, we will save this file in the ``panda_moveit_config/config`` directory. Create the "*stomp_planning.yaml*" configuration file. This file contains the parameters required by STOMP.  The parameters are specific to each ''planning group'' defined in   the SRDF file.  So if there are three planning groups, then the configuration file defines a specific set of parameters for each  planning group. In our case there is only one planning group, the "panda_arm": ::
+
+   
+   stomp/manipulator_rail:
+     group_name: panda_arm
+     optimization:
+       num_timesteps: 60
+       num_iterations: 40
+       num_iterations_after_valid: 0    
+       num_rollouts: 30
+       max_rollouts: 30 
+       initialization_method: 1 #[1 : LINEAR_INTERPOLATION, 2 : CUBIC_POLYNOMIAL, 3 : MININUM_CONTROL_COST
+       control_cost_weight: 0.0
+     task:
+       noise_generator:
+         - class: stomp_moveit/NormalDistributionSampling
+           stddev: [0.05, 0.8, 1.0, 0.8, 0.4, 0.4, 0.4]
+       cost_functions:
+         - class: stomp_moveit/CollisionCheck
+           collision_penalty: 1.0
+           cost_weight: 1.0
+           kernel_window_percentage: 0.2
+           longest_valid_joint_move: 0.05 
+       noisy_filters:
+         - class: stomp_moveit/JointLimits
+           lock_start: True
+           lock_goal: True
+         - class: stomp_moveit/MultiTrajectoryVisualization
+           line_width: 0.02
+           rgb: [255, 255, 0]
+           marker_array_topic: stomp_trajectories
+           marker_namespace: noisy
+       update_filters:
+         - class: stomp_moveit/PolynomialSmoother
+           poly_order: 6
+         - class: stomp_moveit/TrajectoryVisualization
+           line_width: 0.05
+           rgb: [0, 191, 255]
+           error_rgb: [255, 0, 0]
+           publish_intermediate: True
+           marker_topic: stomp_trajectory
+           marker_namespace: optimized      
+     
+    **!!!** *Save this file in the* **config** *directory of the moveit_config package*
+
 #. Copy the ``demo.launch`` file to ``demo_chomp.launch``. Note that this file is also in the launch directory of your MoveIt! config package. In our case, the ``panda_moveit_config/launch`` directory.
-#. Find the lines where ``move_group.launch`` is included and change it to: ::
+#. Modify the **move_group.launch** file. Open the **move_group.launch** in the launch directory and change the ```pipeline``` parameter value to ```stomp``` as shown below: ::
+   
+       .
+       .
+       .
+   <!-- move_group settings -->
+   <arg name="allow_trajectory_execution" default="true"/>
+   <arg name="fake_execution" default="false"/>
+   <arg name="max_safe_path_cost" default="1"/>
+   <arg name="jiggle_fraction" default="0.05" />
+   <arg name="publish_monitored_planning_scene" default="true"/>
 
-    <!-- Replace <robot_moveit_config> with the name of your MoveIt! configuration package -->
-    <include file="$(find <robot_moveit_config>)/launch/move_group.launch">
-      <arg name="allow_trajectory_execution" value="true"/>
-      <arg name="fake_execution" value="true"/>
-      <arg name="info" value="true"/>
-      <arg name="debug" value="$(arg debug)"/>
-      <arg name="planner" value="chomp" />
-    </include>
-#. Open the ``move_group.launch`` file in your ``<robot_moveit_config>/launch/`` folder and make two changes.
+   <!-- Planning Functionality -->
+   <include ns="move_group" file="$(find myworkcell_moveit_config)/launch/planning_pipeline.launch.xml">
+     <arg name="pipeline" value="stomp" />
+   </include>
 
- 7.1. First, add ``<arg name="planner" default="ompl" />`` just under the ``<launch>`` tag, and,
-
- 7.2. Second, within the ``<include ns="move_group">`` tag replace ``<arg name="pipeline" value="ompl" />`` with ``<arg name="pipeline" value="$(arg planner)" />``.
+       .
+       .
+       .
 
 Running the Demo
 ----------------
