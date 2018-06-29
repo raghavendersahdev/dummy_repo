@@ -1,5 +1,5 @@
-CHOMP Planner
-===============
+STOMP Planner
+=============
 
 .. image:: stomp.png
    :width: 700px
@@ -15,7 +15,7 @@ If you haven't already done so, make sure you've completed the steps in `Getting
 You should also have gone through the steps in `Visualization with MoveIt! RViz Plugin <../quickstart_in_rviz/quickstart_in_rviz_tutorial.html>`_
 
 Prerequisites
---------------
+-------------
  1. You must have the latest version of MoveIt! installed. On ROS Kinetic you will need to build MoveIt! from source. A build from source is required as STOMP is not part of the official release yet. It is therefore not included in the binary packages. We will go through the steps for doing this below.
  2. To use STOMP with your robot you must already have a MoveIt! configuration package for your robot already. For example, if you have a Panda robot, it's probably called ``panda_moveit_config``. This is typically built using the `MoveIt! Setup Assistant <../setup_assistant/setup_assistant_tutorial.html>`_.
 
@@ -219,3 +219,5 @@ For scenes containing obstacles, CHOMP often generates paths which do not prefer
 
 Unit Tests for STOMP coming soon
 --------------------------------
+
+This section is coming soon!!
