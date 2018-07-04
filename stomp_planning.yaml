@@ -10,7 +10,7 @@ stomp/panda_arm:
     control_cost_weight: 0.0
   task:
     noise_generator:
-      - class: stomp/moveit/NormalDistributionSampling
+      - class: stomp_moveit/NormalDistributionSampling
         stddev: [0.05, 0.8, 1, 0.8, 0.4, 0.4, 0.4]
     cost_functions:
       - class: stomp_moveit/CollisionCheck
@@ -34,6 +34,6 @@ stomp/panda_arm:
         line_width: 0.05
         rgb: [0, 191, 255]
         error_rgb: [255, 0, 0]
-        publish_intermediate: true
+        publish_intermediate: True
         marker_topic: stomp_trajectory
         marker_namespace: optimized
